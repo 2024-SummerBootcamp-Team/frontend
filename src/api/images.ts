@@ -1,7 +1,5 @@
 import axiosInstance from "./axios";
 
-import axios, { AxiosResponse } from "axios";
-
 // 발췌 이미지 데이터의 타입 정의
 interface getAllImages {
   id: number;

@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
@@ -15,7 +14,7 @@ export default function Navbar() {
           <Link to="/charactercard">캐릭터 선택</Link>
         </li>
         <li className=" text-gray-200">
-          <Link to="/practice">저장한 음성 및 이미지</Link>
+          <Link to="/list_board">저장한 음성 및 이미지</Link>
         </li>
       </ul>
       <div className="flex-1"></div>

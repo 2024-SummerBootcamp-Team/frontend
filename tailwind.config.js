@@ -74,9 +74,22 @@ export default {
         glass: "rgba(255, 255, 255, 0.1)", // 투명한 흰색
       },
     },
-    plugins: [
-      require("tailwindcss-filters"), // 필요한 경우 tailwindcss-filters 플러그인 설치
-    ],
   },
-  plugins: [require("tailwindcss-animate"), require("daisyui")],
+  plugins: [
+    function ({ addUtilities }) {
+      const newUtilities = {
+        ".no-scrollbar::-webkit-scrollbar": {
+          display: "none",
+        },
+        ".no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+        },
+      };
+      addUtilities(newUtilities, ["responsive", "hover"]);
+    },
+    require("tailwindcss-animate"),
+    require("daisyui"),
+    require("tailwindcss-filters"),
+  ],
 };

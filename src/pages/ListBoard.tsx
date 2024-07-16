@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useState, useEffect } from "react";
-import { getAllTts, getTtsById } from "../api/voices";
+import { getAllTts } from "../api/voices";
 import { getAllImages } from "../api/images";
 
 const App: React.FC = () => {
