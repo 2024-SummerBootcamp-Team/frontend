@@ -11,7 +11,9 @@ export default function Navbar() {
         />
       </ul>
       <ul className="flex-1 flex justify-center text-2xl gap-20">
-        <li className=" text-gray-200">캐릭터 선택</li>
+        <li className=" text-gray-200">
+          <Link to="/charactercard">캐릭터 선택</Link>
+        </li>
         <li className=" text-gray-200">
           <Link to="/practice">저장한 음성 및 이미지</Link>
         </li>
