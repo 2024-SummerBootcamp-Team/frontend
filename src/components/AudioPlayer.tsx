@@ -5,12 +5,18 @@ interface AudioPlayerProps {
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioData }) => {
-  const audioRef = useRef<HTMLAudioElement>(null);
+  // HTMLAudioElement | null로 명시적으로 타입을 지정하여 useRef 사용
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // MediaSource | null로 명시적으로 타입을 지정하여 useRef 사용
   const mediaSourceRef = useRef<MediaSource | null>(null);
+  // SourceBuffer | null로 명시적으로 타입을 지정하여 useRef 사용
   const sourceBufferRef = useRef<SourceBuffer | null>(null);
+  // useRef에 대한 타입을 명시적으로 지정
   const queueRef = useRef<Uint8Array[]>([]);
-  const mediaSourceOpened = useRef(false);
-  const [audioSet, setAudioSet] = useState(new Set<string>());
+  // useRef에 대한 타입을 명시적으로 지정
+  const mediaSourceOpened = useRef<boolean>(false);
+  // useState 사용 시 Set<string> 타입 명시적으로 지정
+  const [audioSet] = useState<Set<string>>(new Set<string>());
 
   useEffect(() => {
     if (audioRef.current) {
@@ -81,7 +87,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioData }) => {
     }
   };
 
-  return <audio ref={audioRef} controls hidden />;
+  return (
+    <div>Audio Player Component</div>
+  );
 };
 
 export default AudioPlayer;

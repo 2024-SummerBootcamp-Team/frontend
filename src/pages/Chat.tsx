@@ -22,6 +22,22 @@ interface Message {
   bubble_id?: number;
 }
 
+interface ChatMessageProps extends ChatProps {
+  message: string;
+  isUser: boolean;
+  id?: number;
+  character: string;
+  lastBubbleId?: number;
+}
+
+interface ChatInputProps {
+  chat_id: number | null;
+  onNewMessage: (message: Message) => void;
+  onUpdateResponse: (message: string) => void;
+  setAudioData: React.Dispatch<React.SetStateAction<Uint8Array[]>>;
+  setLastBubbleId: (bubbleId: number) => void;
+}
+
 const formatToKoreanTime = (createdAt: string) => {
   const date = new Date(createdAt);
   const year = date.getFullYear().toString().slice(2);
@@ -85,13 +101,7 @@ const ChatMessage = ({
   id,
   character,
   lastBubbleId,
-}: ChatProps & {
-  message: string;
-  isUser: boolean;
-  id?: number;
-  character: string;
-  lastBubbleId?: number;
-}) => {
+}: ChatMessageProps) => {
   const [isShow, setIsShow] = useState(false);
 
   const showModal = () => {
@@ -215,13 +225,7 @@ const ChatInput = ({
   onUpdateResponse,
   setAudioData,
   setLastBubbleId,
-}: {
-  chat_id: number | null;
-  onNewMessage: (message: Message) => void;
-  onUpdateResponse: (message: string) => void;
-  setAudioData: (audioData: Uint8Array[]) => void;
-  setLastBubbleId: (bubbleId: number) => void;
-}) => {
+}: ChatInputProps) => {
   const [chatContent, setChatContent] = useState("");
   const contentEditableRef = useRef<HTMLDivElement>(null);
 
@@ -243,58 +247,58 @@ const ChatInput = ({
       console.error("Invalid chat ID or empty content");
       return;
     }
-
+  
     onNewMessage({ content: chatContent, isUser: true });
     setChatContent("");
-
+  
     if (contentEditableRef.current) {
       contentEditableRef.current.innerText = "";
     }
-
+  
     try {
       const response = await sendChat(chat_id, chatContent);
-
+  
       if (!response || !response.body) {
         console.error("No response body");
         return;
       }
-
+  
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let accumulatedMessage = "";
       let done = false;
       let partialChunk = "";
-
+  
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
-
+  
         const chunk = decoder.decode(value, { stream: true });
         partialChunk += chunk;
-
+  
         const lines = partialChunk.split("\n");
         if (!done) {
           partialChunk = lines.pop() || "";
         } else {
           partialChunk = "";
         }
-
+  
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const jsonPart = line.substring(6).trim();
             if (jsonPart.length > 0) {
               try {
                 const data = JSON.parse(jsonPart);
-
+  
                 if (data.message) {
                   accumulatedMessage += data.message;
                   onUpdateResponse(accumulatedMessage);
                 }
-
+  
                 if (data.audio) {
                   const binaryData = hexToBinary(data.audio);
-                  // console.log("binaryData: ", binaryData);
-                  setAudioData((prevData) => [...(prevData || []), binaryData]);
+                  setAudioData((prevData: Uint8Array[]) => [...prevData, binaryData]);
+
                 }
                 if (data.bubble_id) {
                   setLastBubbleId(data.bubble_id);
@@ -306,7 +310,7 @@ const ChatInput = ({
           }
         }
       }
-
+  
       onNewMessage({ content: accumulatedMessage, isUser: false });
       onUpdateResponse("");
     } catch (error) {
@@ -314,7 +318,7 @@ const ChatInput = ({
     }
   };
 
-  const hexToBinary = (hex) => {
+  const hexToBinary = (hex: string) => {
     const bytes = new Uint8Array(hex.length / 2);
     for (let i = 0; i < hex.length; i += 2) {
       bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
@@ -380,14 +384,14 @@ const ChatInput = ({
   );
 };
 
-export default function Chat({ description }: ChatProps) {
-  const { chat_id } = useParams();
+const Chat = ({ description }: ChatProps) => {
+  const { chat_id } = useParams<{ chat_id: string }>();
   const chatIdNumber = chat_id ? parseInt(chat_id) : null;
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentResponse, setCurrentResponse] = useState<string>("");
   const [audioData, setAudioData] = useState<Uint8Array[]>([]);
-  const [ttsList, setTtsList] = useState([]);
-  const [imageList, setImageList] = useState([]);
+  const [ttsList, setTtsList] = useState<any[]>([]);
+  const [imageList, setImageList] = useState<any[]>([]);
   const menuOptions = ["default", "ttsList", "imageList"];
   const [menu, setMenu] = useState(menuOptions[0]);
   const [name, setName] = useState("");
@@ -467,10 +471,11 @@ export default function Chat({ description }: ChatProps) {
       setImage(images[2]);
     }
   }, [name, images]);
+
   return (
     <div className="flex flex-row w-screen h-screen px-[3%] py-[3%] gap-10">
       <div className="fixed top-0 left-0 w-screen h-screen bg-[url(https://i.ibb.co/s3QC5vr/3.jpg)] bg-cover bg-fixed z-10" />
-      <div className=" justify-evenly flex flex-col basis-1/4 h-full backdrop-blur backdrop-filter bg-gradient-to-t from-[#7a7a7a1e] to-[#e0e0e024] bg-opacity-10 relative z-10 rounded-xl shadow-xl">
+      <div className="justify-evenly flex flex-col basis-1/4 h-full backdrop-blur backdrop-filter bg-gradient-to-t from-[#7a7a7a1e] to-[#e0e0e024] bg-opacity-10 relative z-10 rounded-xl shadow-xl">
         <div data-aos="zoom-in" className="flex flex-col space-y-12">
           <img
             src={image}
@@ -724,4 +729,6 @@ export default function Chat({ description }: ChatProps) {
       </div>
     </div>
   );
-}
+};
+
+export default Chat;

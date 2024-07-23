@@ -1,16 +1,55 @@
-// App.tsx
 import React, { useState, useEffect } from "react";
 import { getAllTts } from "../api/voices";
 import { getAllImages } from "../api/images";
 import { Link } from "react-router-dom";
 
+interface Voice {
+  id: number;
+  character_image: string;
+  created_at: string;
+  content: string;
+  audio_url: string;
+}
+
+interface Image {
+  image_url: string;
+  content: string;
+}
+
+declare namespace Kakao {
+  function init(apiKey: string): void;
+  function isInitialized(): boolean;
+  namespace Share {
+    function sendDefault(params: {
+      objectType: string;
+      content: {
+        title: string;
+        description: string;
+        imageUrl: string;
+        link: {
+          mobileWebUrl: string;
+          webUrl: string;
+        };
+      };
+      buttons: Array<{
+        title: string;
+        link: {
+          mobileWebUrl: string;
+          webUrl: string;
+        };
+      }>;
+    }): void;
+  }
+}
+
+
 const App: React.FC = () => {
   const [showTts, setShowTts] = useState(true);
-  const [voices, setVoices] = useState([]);
+  const [voices, setVoices] = useState<Voice[]>([]);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | null>(null);
-  const [playingId, setPlayingId] = useState(null);
-  const [Images, setImages] = useState([]);
+  const [playingId, setPlayingId] = useState<number | null>(null);
+  const [images, setImages] = useState<Image[]>([]);
 
   useEffect(() => {
     const fetchVoices = async () => {
@@ -26,40 +65,31 @@ const App: React.FC = () => {
     fetchVoices();
   }, []);
 
-  const handlePlayAudio = async (audio_url: string, index) => {
+  const handlePlayAudio = async (audio_url: string, index: number) => {
     try {
-      // 현재 오디오와 같은 URL이거나 오디오가 없는 경우
       if (audio && currentAudioUrl === audio_url) {
-        if (playingId == index) {
-          // 현재 오디오가 재생 중이면 일시 정지
+        if (playingId === index) {
           audio.pause();
           setPlayingId(null);
         } else {
-          // 현재 오디오가 일시 정지 상태이면 재생
           audio.play();
           setPlayingId(index);
-
-          // 음성이 끝나면 상태를 업데이트합니다.
           audio.onended = () => {
             setPlayingId(null);
           };
         }
       } else {
-        // 다른 오디오가 재생 중이거나 새로운 오디오 URL인 경우
         if (audio) {
-          // 기존 오디오가 있을 경우 정리
           audio.pause();
           setAudio(null);
         }
 
-        // 새로운 오디오 객체 생성 및 재생
         const newAudio = new Audio(audio_url);
         setAudio(newAudio);
         setCurrentAudioUrl(audio_url);
         newAudio
           .play()
           .then(() => {
-            // setIsPlaying(true);
             setPlayingId(index);
           })
           .catch((error) => {
@@ -69,12 +99,10 @@ const App: React.FC = () => {
     } catch (error) {
       console.error("Error playing audio:", error);
     }
-   
   };
 
-  const getSvgIcon = (index) => {
-    if (playingId == index) {
-      // 음성 재생 중일 때 SVG
+  const getSvgIcon = (index: number) => {
+    if (playingId === index) {
       return (
         <div className="group rounded-full transition duration-300 ease-in-out">
           <svg
@@ -161,7 +189,6 @@ const App: React.FC = () => {
         </div>
       );
     } else {
-      // 음성 일시 정지 중일 때 SVG
       return (
         <div className="group rounded-full transition duration-300 ease-in-out">
           <svg
@@ -275,18 +302,15 @@ const App: React.FC = () => {
     }
   };
 
-  const formatDateTime = (dateTimeString) => {
+  const formatDateTime = (dateTimeString: string) => {
     const date = new Date(dateTimeString);
-    //const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-    //const seconds = String(date.getSeconds()).padStart(2, "0");
 
     return `${month}월 ${day}일 ${hours}:${minutes}`;
   };
-  
 
   useEffect(() => {
     async function fetchImages() {
@@ -311,15 +335,13 @@ const App: React.FC = () => {
   const kakaoShare = async (
     voiceId: number,
     content: string,
-    character_image: number
+    character_image: string
   ) => {
     try {
-      // Kakao SDK 초기화 상태 체크
       if (!Kakao.isInitialized()) {
         Kakao.init(import.meta.env.VITE_APP_KAKAO_KEY);
       }
 
-      // 공유할 내용과 URL 설정
       const url = `http://localhost:5173/play?v=${voiceId}`;
       const shareContent = {
         title: "Brain Washer | 브레인 워셔",
@@ -331,7 +353,6 @@ const App: React.FC = () => {
         },
       };
 
-      // 카카오톡 공유하기
       Kakao.Share.sendDefault({
         objectType: "feed",
         content: shareContent,
@@ -352,12 +373,10 @@ const App: React.FC = () => {
 
   const kakaoImageShare = async (content: string, imageUrl: string) => {
     try {
-      // Kakao SDK 초기화 상태 체크
       if (!Kakao.isInitialized()) {
         Kakao.init(import.meta.env.VITE_APP_KAKAO_KEY);
       }
 
-      // 공유할 내용과 URL 설정
       const url = `http://localhost:5173`;
       const shareContent = {
         title: "Brain Washer | 브레인 워셔",
@@ -369,7 +388,6 @@ const App: React.FC = () => {
         },
       };
 
-      // 카카오톡 공유하기
       Kakao.Share.sendDefault({
         objectType: "feed",
         content: shareContent,
@@ -452,7 +470,7 @@ const App: React.FC = () => {
                     />
                     <div className="flex flex-col flex-grow mx-4">
                       <span className="text-sm text-gray-300">
-                      {formatDateTime(item.created_at)}
+                        {formatDateTime(item.created_at)}
                       </span>
                       <p
                         className="text-left mt-2"
@@ -477,11 +495,7 @@ const App: React.FC = () => {
                       <button
                         className="w-auto h-auto text-white rounded"
                         onClick={() =>
-                          kakaoShare(
-                            item.id,
-                            item.content,
-                            item.character_image
-                          )
+                          kakaoShare(item.id, item.content, item.character_image)
                         }
                       >
                         <div className="group rounded-full transition duration-300 ease-in-out">
@@ -608,153 +622,160 @@ const App: React.FC = () => {
               </div>
             ) : (
               <div className="overflow-y-auto h-[695px]">
-  <div className="grid grid-cols-5 gap-x-0.5 gap-y-8">
-    {Images.slice(0, 10).map((image, index) => (
-      <div
-        key={index}
-        className="w-[250px] bg-white bg-opacity-10 rounded-[20px] shadow-md shadow-black/25 overflow-hidden mx-[15%]"
-      >
-        <div className="relative h-0 pb-[100%] mb-15">
-          <img
-            src={image.image_url} // 발췌이미지의 URL 사용
-            alt={`Image ${index + 1}`}
-            className="absolute top-0 left-0 w-full h-full object-cover"
-          />
-        </div>
-        <div className="px-3 py-0 flex">
-          <div
-            className="w-full h-20 p-1 pt-4 text-white overflow-hidden"
-            style={{
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-            }}
-          >
-            {image.content} {/* 발췌이미지에 대한 설명 표시 */}
-          </div>
+                <div className="grid grid-cols-5 gap-x-0.5 gap-y-8">
+                  {images.slice(0, 10).map((image, index) => (
+                    <div
+                      key={index}
+                      className="w-[250px] bg-white bg-opacity-10 rounded-[20px] shadow-md shadow-black/25 overflow-hidden mx-[15%]"
+                    >
+                      <div className="relative h-0 pb-[100%] mb-15">
+                        <img
+                          src={image.image_url}
+                          alt={`Image ${index + 1}`}
+                          className="absolute top-0 left-0 w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="px-3 py-0 flex">
+                        <div
+                          className="w-full h-20 p-1 pt-4 text-white overflow-hidden"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {image.content}
+                        </div>
 
-          <button
-            className="w-auto h-auto text-white rounded"
-            onClick={() => kakaoImageShare(image.content, image.image_url)}
-          >
-            <div className="group rounded-full transition duration-300 ease-in-out">
-              <svg
-                className="w-12 h-12 group-hover:scale-110 transition-transform duration-300 ease-in-out"
-                width="45"
-                height="45"
-                viewBox="0 0 45 45"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g filter="url(#filter0_d_599_396)">
-                  <circle
-                    cx="22.5"
-                    cy="18.5"
-                    r="18.5"
-                    fill="url(#paint0_linear_599_396)"
-                  />
-                </g>
-                <g filter="url(#filter1_d_599_396)">
-                  <path
-                    d="M24.8752 13.75L22.5002 11.375M22.5002 11.375L20.1252 13.75M22.5002 11.375V20.875M25.6668 16.9167H26.0418C27.1464 16.9167 28.0418 17.8121 28.0418 18.9167V22.8333C28.0418 23.9379 27.1464 24.8333 26.0418 24.8333H18.9585C17.8539 24.8333 16.9585 23.9379 16.9585 22.8333V18.9167C16.9585 17.8121 17.8539 16.9167 18.9585 16.9167H19.3335"
-                    stroke="white"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </g>
-                <defs>
-                  <filter
-                    id="filter0_d_599_396"
-                    x="0"
-                    y="0"
-                    width="45"
-                    height="45"
-                    filterUnits="userSpaceOnUse"
-                    color-interpolation-filters="sRGB"
-                  >
-                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                    <feColorMatrix
-                      in="SourceAlpha"
-                      type="matrix"
-                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                      result="hardAlpha"
-                    />
-                    <feOffset dy="4" />
-                    <feGaussianBlur stdDeviation="2" />
-                    <feComposite in2="hardAlpha" operator="out" />
-                    <feColorMatrix
-                      type="matrix"
-                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in2="BackgroundImageFix"
-                      result="effect1_dropShadow_599_396"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in="SourceGraphic"
-                      in2="effect1_dropShadow_599_396"
-                      result="shape"
-                    />
-                  </filter>
-                  <filter
-                    id="filter1_d_599_396"
-                    x="9"
-                    y="9"
-                    width="27"
-                    height="27"
-                    filterUnits="userSpaceOnUse"
-                    color-interpolation-filters="sRGB"
-                  >
-                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                    <feColorMatrix
-                      in="SourceAlpha"
-                      type="matrix"
-                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                      result="hardAlpha"
-                    />
-                    <feOffset dy="4" />
-                    <feGaussianBlur stdDeviation="2" />
-                    <feComposite in2="hardAlpha" operator="out" />
-                    <feColorMatrix
-                      type="matrix"
-                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in2="BackgroundImageFix"
-                      result="effect1_dropShadow_599_396"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in="SourceGraphic"
-                      in2="effect1_dropShadow_599_396"
-                      result="shape"
-                    />
-                  </filter>
-                  <linearGradient
-                    id="paint0_linear_599_396"
-                    x1="22.5"
-                    y1="0"
-                    x2="22.5"
-                    y2="37"
-                    gradientUnits="userSpaceOnUse"
-                  >
-                    <stop stop-color="#631C43" />
-                    <stop offset="1" stop-color="#C93988" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-          </button>
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
-
+                        <button
+                          className="w-auto h-auto text-white rounded"
+                          onClick={() =>
+                            kakaoImageShare(image.content, image.image_url)
+                          }
+                        >
+                          <div className="group rounded-full transition duration-300 ease-in-out">
+                            <svg
+                              className="w-12 h-12 group-hover:scale-110 transition-transform duration-300 ease-in-out"
+                              width="45"
+                              height="45"
+                              viewBox="0 0 45 45"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <g filter="url(#filter0_d_599_396)">
+                                <circle
+                                  cx="22.5"
+                                  cy="18.5"
+                                  r="18.5"
+                                  fill="url(#paint0_linear_599_396)"
+                                />
+                              </g>
+                              <g filter="url(#filter1_d_599_396)">
+                                <path
+                                  d="M24.8752 13.75L22.5002 11.375M22.5002 11.375L20.1252 13.75M22.5002 11.375V20.875M25.6668 16.9167H26.0418C27.1464 16.9167 28.0418 17.8121 28.0418 18.9167V22.8333C28.0418 23.9379 27.1464 24.8333 26.0418 24.8333H18.9585C17.8539 24.8333 16.9585 23.9379 16.9585 22.8333V18.9167C16.9585 17.8121 17.8539 16.9167 18.9585 16.9167H19.3335"
+                                  stroke="white"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                              </g>
+                              <defs>
+                                <filter
+                                  id="filter0_d_599_396"
+                                  x="0"
+                                  y="0"
+                                  width="45"
+                                  height="45"
+                                  filterUnits="userSpaceOnUse"
+                                  color-interpolation-filters="sRGB"
+                                >
+                                  <feFlood
+                                    flood-opacity="0"
+                                    result="BackgroundImageFix"
+                                  />
+                                  <feColorMatrix
+                                    in="SourceAlpha"
+                                    type="matrix"
+                                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                                    result="hardAlpha"
+                                  />
+                                  <feOffset dy="4" />
+                                  <feGaussianBlur stdDeviation="2" />
+                                  <feComposite in2="hardAlpha" operator="out" />
+                                  <feColorMatrix
+                                    type="matrix"
+                                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+                                  />
+                                  <feBlend
+                                    mode="normal"
+                                    in2="BackgroundImageFix"
+                                    result="effect1_dropShadow_599_396"
+                                  />
+                                  <feBlend
+                                    mode="normal"
+                                    in="SourceGraphic"
+                                    in2="effect1_dropShadow_599_396"
+                                    result="shape"
+                                  />
+                                </filter>
+                                <filter
+                                  id="filter1_d_599_396"
+                                  x="9"
+                                  y="9"
+                                  width="27"
+                                  height="27"
+                                  filterUnits="userSpaceOnUse"
+                                  color-interpolation-filters="sRGB"
+                                >
+                                  <feFlood
+                                    flood-opacity="0"
+                                    result="BackgroundImageFix"
+                                  />
+                                  <feColorMatrix
+                                    in="SourceAlpha"
+                                    type="matrix"
+                                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                                    result="hardAlpha"
+                                  />
+                                  <feOffset dy="4" />
+                                  <feGaussianBlur stdDeviation="2" />
+                                  <feComposite in2="hardAlpha" operator="out" />
+                                  <feColorMatrix
+                                    type="matrix"
+                                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+                                  />
+                                  <feBlend
+                                    mode="normal"
+                                    in2="BackgroundImageFix"
+                                    result="effect1_dropShadow_599_396"
+                                  />
+                                  <feBlend
+                                    mode="normal"
+                                    in="SourceGraphic"
+                                    in2="effect1_dropShadow_599_396"
+                                    result="shape"
+                                  />
+                                </filter>
+                                <linearGradient
+                                  id="paint0_linear_599_396"
+                                  x1="22.5"
+                                  y1="0"
+                                  x2="22.5"
+                                  y2="37"
+                                  gradientUnits="userSpaceOnUse"
+                                >
+                                  <stop stop-color="#631C43" />
+                                  <stop offset="1" stop-color="#C93988" />
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
