@@ -212,14 +212,9 @@ export default function Main() {
     };
   }, []);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty('--color-interactive', '140, 100, 255'); // 초기값 설정
-  }, []);
-
   return (
     <div className="flex flex-col w-screen min-h-screen">
-      <svg xmlns="http://www.w3.org/2000/svg">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-0 w-0">
         <defs>
           <filter id="goo">
             <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
