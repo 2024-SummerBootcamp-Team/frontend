@@ -9,12 +9,23 @@ export default {
         heading: ["var(--font-heading)", ...fontFamily.sans],
         body: ["var(--font-body)", ...fontFamily.sans],
       },
+      filter: {
+        'goo-blur': 'url(#goo) blur(40px)',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        bg1: 'rgb(108, 0, 162)',
+        bg2: 'rgb(0, 1, 20)',
+        color1: '11, 2, 94',
+        color2: '62, 3, 102',
+        color3: '98, 45, 255',
+        color4: '246, 1, 68',
+        color5: '176, 0, 90',
+        "color-interactive": '140, 100, 255',
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -44,6 +55,9 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      spacing: {
+        'circle-size': '80%',
+      },
       borderRadius: {
         xl: `calc(var(--radius) + 4px)`,
         lg: `var(--radius)`,
@@ -59,10 +73,28 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        "moveInCircle": {
+          '0%': { transform: 'rotate(0deg)' },
+          '50%': { transform: 'rotate(180deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        "moveVertical": {
+          '0%': { transform: 'translateY(-50%)' },
+          '50%': { transform: 'translateY(50%)' },
+          '100%': { transform: 'translateY(-50%)' },
+        },
+        "moveHorizontal": {
+          '0%': { transform: 'translateX(-50%) translateY(-10%)' },
+          '50%': { transform: 'translateX(50%) translateY(10%)' },
+          '100%': { transform: 'translateX(-50%) translateY(-10%)' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        'move-in-circle': 'moveInCircle 20s reverse infinite',
+        'move-vertical': 'moveVertical 30s ease infinite',
+        'move-horizontal': 'moveHorizontal 40s ease infinite',
       },
       backdropFilter: {
         // backdrop-filter 유틸리티 활성화
@@ -84,6 +116,9 @@ export default {
         ".no-scrollbar": {
           "-ms-overflow-style": "none",
           "scrollbar-width": "none",
+        },
+        '.mix-blend-hard-light': {
+          mixBlendMode: 'hard-light',
         },
       };
       addUtilities(newUtilities, ["responsive", "hover"]);
