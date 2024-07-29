@@ -52,6 +52,7 @@ const Play: React.FC = () => {
             <img
               alt="Brain Washer logo"
               src="https://i.ibb.co/Mk5gYZq/brainwasher-logo-text.png"
+              className="hidden xl:inline-block"
             />
           </Link>
         </div>
@@ -62,7 +63,7 @@ const Play: React.FC = () => {
           <img
             src={characterImage}
             alt="Character"
-            className="w-48 h-48 object-cover rounded-full shadow-lg mb-4 mx-auto"
+            className="w-48 h-48 object-cover rounded-full shadow-lg mb-1 xl:mb-4 mx-auto"
           />
         ) : (
           <p className="text-white mb-4">캐릭터 이미지가 없습니다.</p>
@@ -94,16 +95,57 @@ const Play: React.FC = () => {
               </div>
             )}
             <a
-              href={voice}
-              download={`voice_${voiceId}.mp3`}
-              className="bg-gradient-to-r from-violet-900 to-pink-950 text-white font-bold text-2xl p-4 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform duration-200 ease-in-out"
+            href={voice}
+            download={`voice_${voiceId}.mp3`}
+            className="bg-gradient-to-r from-violet-900 to-pink-950 text-white font-bold text-2xl p-4 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform duration-200 ease-in-out"
+          >
+            <svg
+              className="w-8 h-8"
+              width="45"
+              height="45"
+              viewBox="0 0 45 45"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <img
-                src="https://i.postimg.cc/W4cWDxYW/download-1.png"
-                alt="Download"
-                className="w-8 h-8"
+              <g transform="scale(1.5) translate(-7.5, -7.5)">
+              <path
+                d="M28.4168 20.9999L23.0002 26.4166M23.0002 26.4166L17.5835 20.9999M23.0002 26.4166V11.3333M28.4168 29.6666H17.5835"
+                stroke="white"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                transform="translate(0, 2)"
               />
-            </a>
+            </g>
+              <defs>
+                <filter
+                  id="filter0_d_924_519"
+                  x="0"
+                  y="0"
+                  width="45"
+                  height="45"
+                  filterUnits="userSpaceOnUse"
+                  colorInterpolationFilters="sRGB"
+                >
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
+                  <feColorMatrix
+                    in="SourceAlpha"
+                    type="matrix"
+                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                    result="hardAlpha"
+                  />
+                  <feOffset dy="4" />
+                  <feGaussianBlur stdDeviation="2" />
+                  <feComposite in2="hardAlpha" operator="out" />
+                  <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                  <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_924_519" />
+                  <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_924_519" result="shape" />
+                </filter>
+              </defs>
+            </svg>
+          </a>
+
+
           </div>
         ) : (
           <p className="text-white">음성 파일을 불러오는 중...</p>
@@ -111,8 +153,8 @@ const Play: React.FC = () => {
       </div>
 
       {content && (
-        <div className="mt-5 text-center max-w-[70rem] mx-auto p-8 bg-white bg-opacity-10 rounded-2xl shadow-lg z-10">
-          <p className="text-lg text-white">{content}</p>
+        <div className="mt-1 xl:mt-5 text-center max-w-[90%] xl:max-w-[70rem] mx-auto p-8 bg-white bg-opacity-10 rounded-2xl shadow-lg z-10">
+          <p className="text-lg leading-relaxed xl:text-lg text-white">{content}</p>
         </div>
       )}
     </div>
