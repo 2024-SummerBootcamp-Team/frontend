@@ -157,7 +157,7 @@ const ChatMessage = ({
       <div
         className={`chat-bubble shadow-lg ${
           isUser ? "bg-[#2196F3] opacity-80 text-white" : "bg-glass"
-        } max-w-lg p-[2%] py-[1%] text-xs  xl:text-xs 2xl:text-sm`}
+        } max-w-lg p-[2%] py-[1%] text-[0.8rem] leading-[1.25rem] lg:text-[0.85rem] lg:leading-[1.25rem] xl:text-[0.95rem] xl:leading-[1.3rem] 2xl:text-[1rem] 2xl:leading-[1.5rem]`}
         onClick={() => setIsShow(!isShow)}
       >
         {message}
